@@ -14,28 +14,28 @@
 #define PIN_SERVO_FRONT 36
 #define PIN_SERVO_BACK 32
 #define PIN_PUSH_BUTTON 35
-#define pi=pigpio_start
+#define PI pigpio_start
 
 void move (int PIN_MOTOR, unsigned int power)
 {
-    gpio_write(pi, PIN_MOTOR,PI_HIGH);
-	set_mode(pi, PIN_MOTOR,PI_OUTPUT);
-	set_PWM_dutycycle(pi,PIN_MOTOR,power);
+    gpio_write(PI, PIN_MOTOR,PI_HIGH);
+	set_mode(PI, PIN_MOTOR,PI_OUTPUT);
+	set_PWM_dutycycle(PI,PIN_MOTOR,power);
 }
 
 
 void stop (int PIN_MOTOR)
 {
-    gpio_write(pi, PIN_MOTOR,PI_LOW);
+    gpio_write(PI, PIN_MOTOR,PI_LOW);
 }
 
 
 void fullStop ()
 {
-    gpio_write(pi, PIN_BACKWARD_LEFT,PI_LOW);
-    gpio_write(pi, PIN_BACKWARD_RIGHT,PI_LOW);
-    gpio_write(pi, PIN_FORWARD_RIGHT,PI_LOW);
-    gpio_write(pi, PIN_FORWARD_LEFT,PI_LOW);
+    gpio_write(PI, PIN_BACKWARD_LEFT,PI_LOW);
+    gpio_write(PI, PIN_BACKWARD_RIGHT,PI_LOW);
+    gpio_write(PI, PIN_FORWARD_RIGHT,PI_LOW);
+    gpio_write(PI, PIN_FORWARD_LEFT,PI_LOW);
 }
 
 
@@ -57,21 +57,21 @@ void backwardMove (unsigned int power, unsigned int time)
 
 void servoTest(int PIN_SERVO)
 {
-    set_mode(pi, PIN_SERVO, PI_OUTPUT);
-    set_servo_pulsewidth(pi, PIN_SERVO, 500);
+    set_mode(PI, PIN_SERVO, PI_OUTPUT);
+    set_servo_pulsewidth(PI, PIN_SERVO, 500);
     sleep(1);
-    set_servo_pulsewidth(pi, PIN_SERVO, 1500);
+    set_servo_pulsewidth(PI, PIN_SERVO, 1500);
     sleep(1);
-    set_servo_pulsewidth(pi, PIN_SERVO, 2500);
+    set_servo_pulsewidth(PI, PIN_SERVO, 2500);
     sleep(1);
-    set_servo_pulsewidth(pi, PIN_SERVO, 0);
+    set_servo_pulsewidth(PI, PIN_SERVO, 0);
 }
 
 
 void LED_set_status(bool state)
 {
-    set_mode(pi, PIN_LED, PI_OUTPUT);
-    gpio_write(pi, PIN_LED, state);
+    set_mode(PI, PIN_LED, PI_OUTPUT);
+    gpio_write(PI, PIN_LED, state);
 }
 
 
@@ -90,11 +90,11 @@ void LED_TEST()
 
 int btp()
 {
-    set_mode(pi, PIN_PUSH_BUTTON, PI_INPUT);
-    set_pull_up_down(pi, PIN_PUSH_BUTTON, PI_PUD_DOWN); 
+    set_mode(PI, PIN_PUSH_BUTTON, PI_INPUT);
+    set_pull_up_down(PI, PIN_PUSH_BUTTON, PI_PUD_DOWN); 
     while (1) 
     {
-        int state = gpio_read(pi, PIN_PUSH_BUTTON);
+        int state = gpio_read(PI, PIN_PUSH_BUTTON);
         if (state == PI_HIGH) 
         {
             printf("Le bouton poussoir sur le GPIO 16 est enclenché\n");
