@@ -117,7 +117,7 @@ void LED_TEST()
 int main(){
 
     LED_TEST() ;
-    btp() ;
+   // btp() ;
     servoTest(32) ;
     forwardMove(100, 5) ;
     fullStop() ;
