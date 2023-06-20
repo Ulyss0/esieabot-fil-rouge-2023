@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <esieabot-ai.h>
+#include <pigpiod_if2.h>
 
 #define PIN_ENABLE_LEFT 23
 #define PIN_FORWARD_LEFT 24
