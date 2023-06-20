@@ -89,7 +89,7 @@ void LED_TEST()
 }
 
 
-int btp()
+/*int btp()
 {
     set_mode(PI, PIN_PUSH_BUTTON, PI_INPUT);
     set_pull_up_down(PI, PIN_PUSH_BUTTON, PI_PUD_DOWN); 
@@ -111,7 +111,7 @@ int btp()
         }
         sleep(1);
     }
-}
+}*/
 
 
 int main(){
