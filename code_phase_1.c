@@ -14,7 +14,7 @@
 #define PIN_SERVO_FRONT 36
 #define PIN_SERVO_BACK 32
 #define PIN_PUSH_BUTTON 35
-
+#define pi=pigpio_start
 
 void move (int PIN_MOTOR, unsigned int power)
 {
@@ -78,7 +78,7 @@ void LED_set_status(bool state)
 void LED_TEST()
 {
     int i;
-    for(i=0,i<5,i++)
+    for(i=0;i<5;i++)
     {
         LED_set_status(1);
         sleep(1);
