@@ -5,60 +5,77 @@
 #include <esieabot-ai.h>
 #include <pigpiod_if2.h>
 
-#define PIN_ENABLE_LEFT 23
-#define PIN_FORWARD_LEFT 24
+#define PIN_ENABLE_LEFT 24
+#define PIN_FORWARD_LEFT 23
 #define PIN_BACKWARD_LEFT 25
-#define PIN_ENABLE_RIGHT 17
-#define PIN_FORWARD_RIGHT 18
-#define PIN_BACKWARD_RIGHT 4
-#define PIN_LED 40
-#define PIN_SERVO_FRONT 36
-#define PIN_SERVO_BACK 32
-#define PIN_PUSH_BUTTON 35
-#define PI pigpio_start
+#define PIN_ENABLE_RIGHT 4
+#define PIN_FORWARD_RIGHT 22
+#define PIN_BACKWARD_RIGHT 17
+#define PIN_LED 21
+#define PIN_SERVO_FRONT 16
+#define PIN_SERVO_BACK 12
+#define PIN_PUSH_BUTTON 19
+//#define PI pigpio_start(NULL,NULL)
 
-void move (int PIN_MOTOR, unsigned int power)
+void setup(int pi)
 {
-    gpio_write(PI, PIN_MOTOR,PI_HIGH);
-	set_mode(PI, PIN_MOTOR,PI_OUTPUT);
+    set_mode(pi,PIN_LED, PI_OUTPUT);
+	set_mode(pi,PIN_PUSH_BUTTON, PI_INPUT);
+    set_pull_up_down(pi, PIN_PUSH_BUTTON, PI_PUD_DOWN);
+
+    set_mode(pi,PIN_ENABLE_RIGHT, PI_OUTPUT);
+    set_mode(pi,PIN_FORWARD_RIGHT, PI_OUTPUT);
+    set_mode(pi,PIN_BACKWARD_RIGHT, PI_OUTPUT);
+
+    set_mode(pi,PIN_ENABLE_LEFT, PI_OUTPUT);
+    set_mode(pi,PIN_FORWARD_LEFT, PI_OUTPUT);
+    set_mode(pi,PIN_BACKWARD_LEFT, PI_OUTPUT);
+
+    set_mode(pi, PIN_SERVO_BACK, PI_OUTPUT);
+    set_mode(pi, PIN_SERVO_FRONT, PI_OUTPUT);
+
+    
+}
+
+void move (int PI, int PIN_MOTOR, unsigned int power)
+{
 	set_PWM_dutycycle(PI,PIN_MOTOR,power);
 }
 
 
-void stop (int PIN_MOTOR)
+void stop (int PI,int PIN_MOTOR)
 {
     gpio_write(PI, PIN_MOTOR,PI_LOW);
 }
 
 
-void fullStop ()
+void fullStop (int PI)
 {
-    gpio_write(PI, PIN_BACKWARD_LEFT,PI_LOW);
-    gpio_write(PI, PIN_BACKWARD_RIGHT,PI_LOW);
-    gpio_write(PI, PIN_FORWARD_RIGHT,PI_LOW);
-    gpio_write(PI, PIN_FORWARD_LEFT,PI_LOW);
+    set_PWM_dutycycle(PI,PIN_BACKWARD_LEFT,0);
+    set_PWM_dutycycle(PI,PIN_BACKWARD_RIGHT,0);
+    set_PWM_dutycycle(PI,PIN_FORWARD_RIGHT,0);
+    set_PWM_dutycycle(PI,PIN_FORWARD_LEFT,0);
 }
 
 
-void forwardMove (unsigned int power, unsigned int time)
+void forwardMove (int PI, unsigned int power, unsigned int time)
 {
-    move(PIN_FORWARD_RIGHT,power);
-    move(PIN_FORWARD_LEFT,power);
-    sleep(time);
+	move(PI, PIN_FORWARD_RIGHT,power);
+	move(PI, PIN_FORWARD_LEFT,power);
+	sleep(time);
 }
 
 
-void backwardMove (unsigned int power, unsigned int time)
+void backwardMove (int PI,unsigned int power, unsigned int time)
 {
-    move(PIN_BACKWARD_LEFT,power);
-    move(PIN_BACKWARD_RIGHT,power);
-    sleep(time);
+	move(PI, PIN_BACKWARD_LEFT,power);
+	move(PI, PIN_BACKWARD_RIGHT,power);
+	sleep(time);
 }
 
 
-void servoTest(int PIN_SERVO)
-{
-    set_mode(PI, PIN_SERVO, PI_OUTPUT);
+void servoTest(int PI, int PIN_SERVO)
+{    
     set_servo_pulsewidth(PI, PIN_SERVO, 500);
     sleep(1);
     set_servo_pulsewidth(PI, PIN_SERVO, 1500);
@@ -69,38 +86,34 @@ void servoTest(int PIN_SERVO)
 }
 
 
-void LED_set_status(bool state)
+void LED_set_status(int PI, int state)
 {
-    set_mode(PI, PIN_LED, PI_OUTPUT);
     gpio_write(PI, PIN_LED, state);
 }
 
 
-void LED_TEST()
+void LED_TEST(int PI)
 {
     int i;
     for(i=0;i<5;i++)
     {
-        LED_set_status(1);
-        sleep(1);
-        LED_set_status(0);
-        sleep(1);
+        LED_set_status(PI,1);
+        sleep(0.1);
+        LED_set_status(PI,0);
+        sleep(0.1);
     }
 }
 
-
-/*int btp()
-{
-    set_mode(PI, PIN_PUSH_BUTTON, PI_INPUT);
-    set_pull_up_down(PI, PIN_PUSH_BUTTON, PI_PUD_DOWN); 
+int btp(int PI)
+{ 
+    int state = gpio_read(PI, PIN_PUSH_BUTTON);
     while (1) 
     {
-        int state = gpio_read(PI, PIN_PUSH_BUTTON);
-        if (state == PI_HIGH) 
-        {
-            printf("Le bouton poussoir sur le GPIO 16 est enclenché\n");
-            return 1;
-        }
+        state = gpio_read(PI, PIN_PUSH_BUTTON);
+	if (state == PI_HIGH){
+	    printf("Le bouton poussoir sur le GPIO 16 est enclenché\n");
+		return 1;
+	}
         else if (state == PI_LOW) 
         {
             printf("Le bouton poussoir sur le GPIO 16 est relaché\n");
@@ -111,22 +124,34 @@ void LED_TEST()
         }
         sleep(1);
     }
-}*/
+}
 
 
-int main(){
+int main()
+{
+	
+	int pi =pigpio_start(NULL,NULL);
+    setup(pi);
+	LED_TEST(pi) ;
+	printf("led ok\n");
+	btp(pi) ;
+	printf("btp ok\n");
+	servoTest(pi, PIN_SERVO_FRONT) ;
+	printf("servo ok\n");
+	forwardMove(pi, 255, 1) ;
+	printf("fwd\n");
+	fullStop(pi) ;
+	printf("stop\n");
+	backwardMove(pi, 255, 1) ;
+	printf("bwd\n");
+	fullStop(pi) ;
+	printf("stop2\n");
 
-    LED_TEST() ;
-   // btp() ;
-    servoTest(32) ;
-    forwardMove(100, 5) ;
-    fullStop() ;
-    backwardMove(100, 5) ;
-    fullStop() ;
-
-    while (1) {
+	while (1) 
+    {
         marker *markers = get_markers();
-        while (markers->id != -1) {
+        while (markers->id != -1) 
+        {
             printf("Marker found: number %d at %dcm distance. x=%d y=%d\n", markers->id, markers->z, markers->x, markers->y);
             markers++;
         }
